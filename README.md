@@ -67,8 +67,25 @@ To use Anthropic Claude instead, update `config.yaml` model to
 `claude-sonnet-4-20250514` and set `ANTHROPIC_API_KEY`.
 
 ### 🌟 Free API Version (Groq Llama 3)
-If you don't have paid API keys, use the `free_api_version` directory!
-It's pre-configured with the free Groq API endpoint and your API key to run Llama 3 entirely for free. Simply run `python build_book.py` from within that folder.
+If you don't have paid API keys (or just want a 1-click test), use the `free_api_version` directory! 
+
+This version is pre-configured with the free Groq API endpoint. To run it immediately using the preset API key (zero configuration needed):
+```bash
+cd free_api_version
+python build_book.py
+```
+
+**Using your own free API key:**
+If you'd like to supply your own free Groq API key instead, simply set it as an environment variable before running:
+```bash
+# Windows PowerShell:
+$env:GROQ_API_KEY="your-groq-api-key"
+
+# Linux / Mac:
+export GROQ_API_KEY="your-groq-api-key"
+
+python build_book.py
+```
 
 ---
 
