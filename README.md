@@ -66,6 +66,10 @@ $env:DEEPSEEK_API_KEY="sk-your-key-here"
 To use Anthropic Claude instead, update `config.yaml` model to
 `claude-sonnet-4-20250514` and set `ANTHROPIC_API_KEY`.
 
+### 🌟 Free API Version (Groq Llama 3)
+If you don't have paid API keys, use the `free_api_version` directory!
+It's pre-configured with the free Groq API endpoint and your API key to run Llama 3 entirely for free. Simply run `python build_book.py` from within that folder.
+
 ---
 
 ## Run
@@ -101,6 +105,7 @@ repo/
 ├── config.yaml                # Playlist URL, model params, output paths
 ├── requirements.txt           # All dependencies
 ├── README.md
+├── free_api_version/          # Alternative pre-configured to use free Groq API
 ├── pipeline/
 │   ├── 01_fetch_transcripts.py   # Fetch + clean YouTube transcripts
 │   ├── 02_write_chapters.py      # Expand transcripts into book prose
