@@ -1,0 +1,7 @@
+anthropic
+openai
+youtube-transcript-api
+yt-dlp
+reportlab
+pyyaml
+google-genai

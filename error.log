@@ -1,0 +1,4 @@
+  File "C:\Users\vaibhav mahore\Downloads\Vansun assignment\llm-book-pipeline\repo\pipeline\02_write_chapters.py", line 5
+    from google import genai\nfrom google.genai import types
+                             ^
+SyntaxError: unexpected character after line continuation character

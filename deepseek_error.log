@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "C:\Users\vaibhav mahore\Downloads\Vansun assignment\llm-book-pipeline\repo\pipeline\02_write_chapters.py", line 154, in <module>
+    run()
+    ~~~^^
+  File "C:\Users\vaibhav mahore\Downloads\Vansun assignment\llm-book-pipeline\repo\pipeline\02_write_chapters.py", line 130, in run
+    intro = write_chapter_intro(client, model_name, v["title"], full_text)
+  File "C:\Users\vaibhav mahore\Downloads\Vansun assignment\llm-book-pipeline\repo\pipeline\02_write_chapters.py", line 84, in write_chapter_intro
+    response = client.chat.completions.create(
+        model=model_name,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=512
+    )
+  File "C:\Users\vaibhav mahore\AppData\Roaming\Python\Python314\site-packages\openai\_utils\_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\vaibhav mahore\AppData\Roaming\Python\Python314\site-packages\openai\resources\chat\completions\completions.py", line 1211, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<47 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\vaibhav mahore\AppData\Roaming\Python\Python314\site-packages\openai\_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vaibhav mahore\AppData\Roaming\Python\Python314\site-packages\openai\_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.APIStatusError: Error code: 402 - {'error': {'message': 'Insufficient Balance', 'type': 'unknown_error', 'param': None, 'code': 'invalid_request_error'}}
