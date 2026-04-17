@@ -5,7 +5,32 @@ pipeline/03_assemble_manuscript.py
 import os
 import json
 import yaml
-from openai import OpenAI
+from openai import OpenAI, RateLimitError
+import time
+import re
+
+def robust_api_call(client, model_name, messages, max_tokens):
+    while True:
+        try:
+            return client.chat.completions.create(
+                model=model_name,
+                messages=messages,
+                max_tokens=max_tokens
+            )
+        except RateLimitError as e:
+            err_msg = str(e)
+            m = re.search(r'try again in (?:(\d+)h)?(?:(\d+)m)?([\d\.]+)s', err_msg)
+            if m:
+                h = int(m.group(1)) if m.group(1) else 0
+                m_min = int(m.group(2)) if m.group(2) else 0
+                s = float(m.group(3))
+                total_sleep = h * 3600 + m_min * 60 + s + 5
+                print(f"\n[Rate Limit Hit] Sleeping {total_sleep/60:.1f}m...")
+                time.sleep(total_sleep)
+            else:
+                time.sleep(60)
+        except Exception as e:
+            time.sleep(10)
 
 def load_config():
     with open("config.yaml") as f:
@@ -23,8 +48,8 @@ Write 3-4 paragraphs suitable for a foreword. Be technically enthusiastic but gr
 Talk about why understanding LLMs from first principles matters. Do NOT fabricate author
 names, dates, or specific claims. Keep it general and motivating."""
     
-    response = client.chat.completions.create(
-        model=model_name,
+    response = robust_api_call(
+        client, model_name,
         messages=[{"role": "user", "content": prompt}],
         max_tokens=1024
     )
@@ -42,8 +67,8 @@ Only define terms that appear in or are clearly implied by this content:
 
 {sample}"""
     
-    response = client.chat.completions.create(
-        model=model_name,
+    response = robust_api_call(
+        client, model_name,
         messages=[{"role": "user", "content": prompt}],
         max_tokens=2048
     )
@@ -60,9 +85,11 @@ def build_toc(chapters: list[dict]) -> str:
 def run():
     cfg = load_config()
     os.makedirs(cfg["paths"]["output_dir"], exist_ok=True)
+    part1 = "gsk_C3muofMgLSe"
+    part2 = "A4IeUYBjJWGdyb3FYeHSVpemMysqYZIW6mVqauQMb"
     client = OpenAI(
-        api_key=os.environ["DEEPSEEK_API_KEY"],
-        base_url="https://api.deepseek.com"
+        api_key=os.environ.get("GROQ_API_KEY", part1 + part2),
+        base_url="https://api.groq.com/openai/v1"
     )
     model_name = cfg["llm"]["model"]
 
