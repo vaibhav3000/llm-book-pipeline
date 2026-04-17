@@ -63,18 +63,19 @@ def main():
                         help="Limit the number of videos processed (e.g. 5)")
     args = parser.parse_args()
 
-    if args.max_v is not None:
-        import yaml
-        with open("config.yaml", "r") as f:
-            cfg = yaml.safe_load(f)
-        cfg["pipeline"]["max_videos"] = args.max_v
-        with open("config.yaml", "w") as f:
-            yaml.dump(cfg, f, default_flow_style=False)
+    import yaml
+    with open("config.yaml", "r") as f:
+        cfg = yaml.safe_load(f)
+    cfg["pipeline"]["max_videos"] = args.max_v
+    with open("config.yaml", "w") as f:
+        yaml.dump(cfg, f, default_flow_style=False)
 
     print("=" * 58)
     print("  Building LLMs from Scratch - Book Pipeline")
     if args.max_v is not None:
-        print(f"  [Config] Temporarily pinned to {args.max_v} videos for fast testing!")
+        print(f"  [Config] Automatically pinned to {args.max_v} videos for fast testing!")
+    else:
+        print(f"  [Config] Successfully locked to massive Full-Playlist Execution!")
     print("=" * 58)
 
     if not args.dry_run:

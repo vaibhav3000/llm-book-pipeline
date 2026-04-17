@@ -203,6 +203,9 @@ def _header_footer(canvas, doc):
 # ── Markdown → ReportLab parser ──────────────────────────────────────────────
 def md_to_para(text: str, style) -> Paragraph:
     """Convert inline markdown to reportlab XML tags."""
+    # First comprehensively escape native XML characters safely
+    text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    
     # Bold+italic
     text = re.sub(r'\*\*\*(.+?)\*\*\*', r'<b><i>\1</i></b>', text)
     # Bold
