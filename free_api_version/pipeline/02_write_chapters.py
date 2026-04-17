@@ -8,7 +8,33 @@ import os
 import json
 import time
 import yaml
-from openai import OpenAI
+import re
+from openai import OpenAI, RateLimitError
+
+def robust_api_call(client, model_name, messages, max_tokens):
+    while True:
+        try:
+            return client.chat.completions.create(
+                model=model_name,
+                messages=messages,
+                max_tokens=max_tokens
+            )
+        except RateLimitError as e:
+            err_msg = str(e)
+            m = re.search(r'try again in (?:(\d+)h)?(?:(\d+)m)?([\d\.]+)s', err_msg)
+            if m:
+                h = int(m.group(1)) if m.group(1) else 0
+                m_min = int(m.group(2)) if m.group(2) else 0
+                s = float(m.group(3))
+                total_sleep = h * 3600 + m_min * 60 + s + 5
+                print(f"\n         [Rate Limit Hit] Automatically sleeping for {total_sleep/60:.1f} minutes...")
+                time.sleep(total_sleep)
+            else:
+                print(f"\n         [Rate Limit Hit] Unknown time format. Sleeping 60s...")
+                time.sleep(60)
+        except Exception as e:
+            print(f"\n         [API Error] {e}. Retrying in 10s...")
+            time.sleep(10)
 
 SYSTEM_PROMPT = """You are a technical book author writing a chapter of a book titled
 "Building Large Language Models from Scratch". Your job is to take a raw YouTube
@@ -62,8 +88,9 @@ brief chapter-opening sentence. If it is a middle chunk, continue the narrative
 naturally. If it is the last chunk, end with a paragraph that summarizes what
 was covered and sets up the next chapter."""
     
-    response = client.chat.completions.create(
-        model=model_name,
+    response = robust_api_call(
+        client, 
+        model_name,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_msg}
@@ -81,8 +108,9 @@ titled "{title}". Base it ONLY on this transcript excerpt - no outside facts:
 
 Keep it concise, engaging, and technical. Do not start with "In this chapter"."""
     
-    response = client.chat.completions.create(
-        model=model_name,
+    response = robust_api_call(
+        client,
+        model_name,
         messages=[{"role": "user", "content": prompt}],
         max_tokens=512
     )
