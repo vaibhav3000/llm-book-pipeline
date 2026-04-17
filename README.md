@@ -98,6 +98,9 @@ export GROQ_API_KEY="gsk_your_groq_key"
 python build_book.py
 ```
 
+> [!NOTE]
+> **Dealing with Free API Limits:** Because the pipeline expands a huge playlist, you may occasionally hit Groq's strict free tier limits (`Error 429: rate_limit_exceeded`) midway through the build. This is totally normal! The pipeline caches everything it completes. Simply wait 60 seconds and run `python build_book.py` again. It will instantly skip the completed chapters and seamlessly resume building exactly where it stopped.
+
 ---
 
 ## Run
