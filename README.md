@@ -67,23 +67,34 @@ To use Anthropic Claude instead, update `config.yaml` model to
 `claude-sonnet-4-20250514` and set `ANTHROPIC_API_KEY`.
 
 ### 🌟 Free API Version (Groq Llama 3)
-If you don't have paid API keys (or just want a 1-click test), use the `free_api_version` directory! 
+If you don't have paid API keys (or just want a 1-click end-to-end test), a fully functional pipeline is provided out-of-the-box in the `free_api_version` directory.
 
-This version is pre-configured with the free Groq API endpoint. To run it immediately using the preset API key (zero configuration needed):
+#### Method A: 1-Click Zero-Configuration (Preset Key)
+This version allows you to run the pipeline exactly as submitted without signing up for any services:
+**Step 1:** Enter the free version directory
 ```bash
 cd free_api_version
+```
+**Step 2:** Start the pipeline entirely for free
+```bash
 python build_book.py
 ```
 
-**Using your own free API key:**
-If you'd like to supply your own free Groq API key instead, simply set it as an environment variable before running:
+#### Method B: Use Your Own Free Key
+If you prefer to securely use your own free Groq API key:
+**Step 1:** Create an account at [Groq Console](https://console.groq.com/) and generate a free API key.
+**Step 2:** Enter the directory and set your API key
 ```bash
+cd free_api_version
+
 # Windows PowerShell:
-$env:GROQ_API_KEY="your-groq-api-key"
+$env:GROQ_API_KEY="gsk_your_groq_key"
 
 # Linux / Mac:
-export GROQ_API_KEY="your-groq-api-key"
-
+export GROQ_API_KEY="gsk_your_groq_key"
+```
+**Step 3:** Run the pipeline
+```bash
 python build_book.py
 ```
 
