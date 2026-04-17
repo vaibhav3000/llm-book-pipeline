@@ -99,7 +99,7 @@ python build_book.py
 ```
 
 > [!NOTE]
-> **Dealing with Free API Limits:** Because the pipeline expands a huge playlist, you may occasionally hit Groq's strict free tier limits (`Error 429: rate_limit_exceeded`) midway through the build. This is totally normal! The pipeline caches everything it completes. Simply wait 60 seconds and run `python build_book.py` again. It will instantly skip the completed chapters and seamlessly resume building exactly where it stopped. *(Note: If you run the root pipeline using a paid API key like Anthropic or DeepSeek, you will not hit these limits and the full execution will stream through completely uninterrupted!)*
+> **Dealing with Free API Limits:** Because the pipeline expands a huge playlist, the free Groq API will inevitably hit its strict free tier limits (`Error 429: rate_limit_exceeded`) midway through the build. This is totally normal! The pipeline actually features an advanced auto-retry mechanism configured specifically for this scenario. Whenever a limit is hit, the script automatically pauses itself (sometimes for ~1 hour depending on your daily tokens), perfectly calculates the required wait time, and flawlessly resumes building exactly where it left off the second your limits natively renew. Absolutely no manual intervention is required! *(Note: If you run the pipeline using a paid API key like Anthropic or DeepSeek, you will not hit these limits and the full execution will stream through completely uninterrupted!)*
 
 ---
 
