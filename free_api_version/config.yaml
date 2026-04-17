@@ -1,28 +1,24 @@
-playlist:
-  url: "https://www.youtube.com/watch?v=Xpr8D6LeAtw&list=PLPTV0NXA_ZSgsLAr8YCgCwhPIJNNtexWu"
-  id: "PLPTV0NXA_ZSgsLAr8YCgCwhPIJNNtexWu"
-
 book:
-  title: "Building Large Language Models from Scratch"
-  subtitle: "A Comprehensive Guide from Fundamentals to Production"
-  author: "Based on the YouTube Playlist by Andrej Karpathy et al."
-  version: "1.0"
-
+  author: Based on the YouTube Playlist by Andrej Karpathy et al.
+  subtitle: A Comprehensive Guide from Fundamentals to Production
+  title: Building Large Language Models from Scratch
+  version: '1.0'
 llm:
-  model: "llama-3.3-70b-versatile"
-  max_tokens: 4096
-  chunk_size: 3000
   chunk_overlap: 200
-
+  chunk_size: 3000
+  max_tokens: 4096
+  model: llama-3.3-70b-versatile
 paths:
-  cache_dir: "cache"
-  transcripts_dir: "cache/transcripts"
-  chapters_dir: "cache/chapters"
-  output_dir: "output"
-  manuscript_md: "output/manuscript.md"
-  output_pdf: "output/Building_LLMs_from_Scratch.pdf"
-
+  cache_dir: cache
+  chapters_dir: cache/chapters
+  manuscript_md: output/manuscript.md
+  output_dir: output
+  output_pdf: output/Building_LLMs_from_Scratch.pdf
+  transcripts_dir: cache/transcripts
 pipeline:
   force_refetch: false
   force_rewrite: false
-  max_videos: 5
+  max_videos: 2
+playlist:
+  id: PLPTV0NXA_ZSgsLAr8YCgCwhPIJNNtexWu
+  url: https://www.youtube.com/watch?v=Xpr8D6LeAtw&list=PLPTV0NXA_ZSgsLAr8YCgCwhPIJNNtexWu
