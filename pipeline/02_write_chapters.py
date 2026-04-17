@@ -10,6 +10,21 @@ import time
 import yaml
 from openai import OpenAI
 
+def robust_api_call(client, model_name, messages, max_tokens):
+    retries = 0
+    while True:
+        try:
+            return client.chat.completions.create(
+                model=model_name,
+                messages=messages,
+                max_tokens=max_tokens
+            )
+        except Exception as e:
+            retries += 1
+            sleep_time = min(300, 2 ** retries)
+            print(f"\n         [API Error] {e}. Retrying in {sleep_time}s...")
+            time.sleep(sleep_time)
+
 SYSTEM_PROMPT = """You are a technical book author writing a chapter of a book titled
 "Building Large Language Models from Scratch". Your job is to take a raw YouTube
 transcript excerpt and transform it into polished, book-quality prose.
@@ -62,8 +77,8 @@ brief chapter-opening sentence. If it is a middle chunk, continue the narrative
 naturally. If it is the last chunk, end with a paragraph that summarizes what
 was covered and sets up the next chapter."""
     
-    response = client.chat.completions.create(
-        model=model_name,
+    response = robust_api_call(
+        client, model_name,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_msg}
@@ -81,8 +96,8 @@ titled "{title}". Base it ONLY on this transcript excerpt - no outside facts:
 
 Keep it concise, engaging, and technical. Do not start with "In this chapter"."""
     
-    response = client.chat.completions.create(
-        model=model_name,
+    response = robust_api_call(
+        client, model_name,
         messages=[{"role": "user", "content": prompt}],
         max_tokens=512
     )

@@ -4,8 +4,24 @@ pipeline/03_assemble_manuscript.py
 
 import os
 import json
+import time
 import yaml
 from openai import OpenAI
+
+def robust_api_call(client, model_name, messages, max_tokens):
+    retries = 0
+    while True:
+        try:
+            return client.chat.completions.create(
+                model=model_name,
+                messages=messages,
+                max_tokens=max_tokens
+            )
+        except Exception as e:
+            retries += 1
+            sleep_time = min(300, 2 ** retries)
+            print(f"\n[API Error] {e}. Retrying in {sleep_time}s...")
+            time.sleep(sleep_time)
 
 def load_config():
     with open("config.yaml") as f:
@@ -23,8 +39,8 @@ Write 3-4 paragraphs suitable for a foreword. Be technically enthusiastic but gr
 Talk about why understanding LLMs from first principles matters. Do NOT fabricate author
 names, dates, or specific claims. Keep it general and motivating."""
     
-    response = client.chat.completions.create(
-        model=model_name,
+    response = robust_api_call(
+        client, model_name,
         messages=[{"role": "user", "content": prompt}],
         max_tokens=1024
     )
@@ -42,8 +58,8 @@ Only define terms that appear in or are clearly implied by this content:
 
 {sample}"""
     
-    response = client.chat.completions.create(
-        model=model_name,
+    response = robust_api_call(
+        client, model_name,
         messages=[{"role": "user", "content": prompt}],
         max_tokens=2048
     )
