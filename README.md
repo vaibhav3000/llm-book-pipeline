@@ -94,9 +94,19 @@ $env:GROQ_API_KEY="gsk_your_groq_key"
 export GROQ_API_KEY="gsk_your_groq_key"
 ```
 **Step 3:** Run the pipeline
+
+To safely test the pipeline blazing-fast (processing exactly 5 videos instead of the entire playlist):
+```bash
+python build_book.py --max-videos 5
+```
+
+If you want to compile the absolutely massive, full out-of-the-box 43-video playbook, simply run:
 ```bash
 python build_book.py
 ```
+
+> [!WARNING]
+> Do NOT run the completely massive 43-video playlist using the Free API Version unless you have an exponential amount of time. Because the free Groq Limits heavily throttle execution, processing all 45 video chapters using exclusively free tokens will iteratively pause/resume and ultimately require leaving your computer running for dozens of hours in the background gracefully. If you want to review the execution seamlessly, absolutely use the `python build_book.py --max-videos 5` command!
 
 > [!NOTE]
 > **Dealing with Free API Limits:** Because the pipeline expands a huge playlist, the free Groq API will inevitably hit its strict free tier limits (`Error 429: rate_limit_exceeded`) midway through the build. This is totally normal! The pipeline actually features an advanced auto-retry mechanism configured specifically for this scenario. Whenever a limit is hit, the script automatically pauses itself (sometimes for ~1 hour depending on your daily tokens), perfectly calculates the required wait time, and flawlessly resumes building exactly where it left off the second your limits natively renew. Absolutely no manual intervention is required! *(Note: If you run the pipeline using a paid API key like Anthropic or DeepSeek, you will not hit these limits and the full execution will stream through completely uninterrupted!)*
@@ -105,16 +115,12 @@ python build_book.py
 
 ## Run
 
-**Test run (3 videos, costs under $0.05):**
-
-Set `max_videos: 3` in `config.yaml`, then:
+**Test run (5 videos fast execution):**
 ```bash
-python build_book.py
+python build_book.py --max-videos 5
 ```
 
-**Full playlist:**
-
-Set `max_videos: null` in `config.yaml`, then:
+**Full playlist execution (43+ videos):**
 ```bash
 python build_book.py
 ```

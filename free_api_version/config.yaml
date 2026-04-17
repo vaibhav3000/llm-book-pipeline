@@ -25,4 +25,4 @@ paths:
 pipeline:
   force_refetch: false
   force_rewrite: false
-  max_videos: null
+  max_videos: 5

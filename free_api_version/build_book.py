@@ -59,10 +59,22 @@ def main():
                         help="Run only stage N")
     parser.add_argument("--dry-run", action="store_true",
                         help="Print plan without executing")
+    parser.add_argument("--max-videos", dest="max_v", type=int, default=None,
+                        help="Limit the number of videos processed (e.g. 5)")
     args = parser.parse_args()
+
+    if args.max_v is not None:
+        import yaml
+        with open("config.yaml", "r") as f:
+            cfg = yaml.safe_load(f)
+        cfg["pipeline"]["max_videos"] = args.max_v
+        with open("config.yaml", "w") as f:
+            yaml.dump(cfg, f, default_flow_style=False)
 
     print("=" * 58)
     print("  Building LLMs from Scratch - Book Pipeline")
+    if args.max_v is not None:
+        print(f"  [Config] Temporarily pinned to {args.max_v} videos for fast testing!")
     print("=" * 58)
 
     if not args.dry_run:
