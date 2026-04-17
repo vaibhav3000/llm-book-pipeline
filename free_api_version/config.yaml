@@ -9,7 +9,7 @@ book:
   version: "1.0"
 
 llm:
-  model: "llama3-70b-8192"
+  model: "llama-3.3-70b-versatile"
   max_tokens: 4096
   chunk_size: 3000
   chunk_overlap: 200
