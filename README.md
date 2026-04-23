@@ -216,6 +216,6 @@ The pipeline produces:
 ## Author
 
 **Vaibhav Mahore**  
-Indian Institute of Science, Bangalore — B.Tech, Mathematics and Computing
+Indian Institute of Science, Bangalore - B.Tech, Mathematics and Computing
 
-📘 *For full technical details, algorithms, prompt engineering methodology, and  architecture analysis — please read the [Technical Report](./Book_llm_pipeline_report.pdf).*
+📘 *For full technical details, algorithms, prompt engineering methodology, and  architecture analysis - please read the [Technical Report](./Book_llm_pipeline_report.pdf).*
