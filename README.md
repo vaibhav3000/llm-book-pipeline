@@ -2,7 +2,7 @@
 
 > **Automated YouTube-to-eBook PDF pipeline powered by Large Language Models.**
 
-Converts a YouTube playlist of educational lectures into a publication-quality PDF book — fetching transcripts, expanding them into polished prose with an LLM, assembling a full manuscript, and rendering a typeset PDF — all in Python, with no LaTeX dependency.
+Converts a YouTube playlist of educational lectures into a publication-quality PDF book - fetching transcripts, expanding them into polished prose with an LLM, assembling a full manuscript, and rendering a typeset PDF - all in Python, with no LaTeX dependency.
 
 **Target Playlist:** [Building LLMs from Scratch – Dr. Raj Dander (VIUA)](https://www.youtube.com/watch?v=Xpr8D6LeAtw&list=PLPTV0NXA_ZSgsLAr8YCgCwhPIJNNtexWu)  
 **Generated Output:** `output/Building_LLMs_from_Scratch.pdf`
@@ -15,7 +15,7 @@ A comprehensive technical report documenting the full architecture, design decis
 
 | File | Description |
 |------|-------------|
-| [`Book_llm_pipeline_report.pdf`](./Book_llm_pipeline_report.pdf) | 📘 Full technical report (PDF) — **read this for a deep dive into how the pipeline works** |
+| [`Book_llm_pipeline_report.pdf`](./Book_llm_pipeline_report.pdf) | 📘 Full technical report (PDF) - **read this for a deep dive into how the pipeline works** |
 | [`Book_llm_pipeline_report.tex`](./Book_llm_pipeline_report.tex) | LaTeX source of the report |
 
 > **We strongly recommend going through the report** to understand the system architecture, prompt engineering methodology, chunking strategy, LLM backend comparison, and known limitations before running or extending the pipeline.
@@ -42,7 +42,7 @@ Stage 3: Assemble Manuscript     ──► output/manuscript.md
 Stage 4: Render PDF (ReportLab)  ──► output/Building_LLMs_from_Scratch.pdf
 ```
 
-All LLM outputs are **file-cached by `video_id`** — re-runs skip already-processed videos. Any stage can be restarted independently.
+All LLM outputs are **file-cached by `video_id`** - re-runs skip already-processed videos. Any stage can be restarted independently.
 
 ---
 
