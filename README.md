@@ -1,39 +1,106 @@
-# Building Large Language Models from Scratch
+# LLM Book Pipeline
 
-A reproducible pipeline that converts the YouTube playlist
-"Building LLMs from Scratch" into an eBook-quality PDF manuscript
-using LLMs for content expansion.
+> **Automated YouTube-to-eBook PDF pipeline powered by Large Language Models.**
 
-**Playlist:**
-https://www.youtube.com/watch?v=Xpr8D6LeAtw&list=PLPTV0NXA_ZSgsLAr8YCgCwhPIJNNtexWu
+Converts a YouTube playlist of educational lectures into a publication-quality PDF book — fetching transcripts, expanding them into polished prose with an LLM, assembling a full manuscript, and rendering a typeset PDF — all in Python, with no LaTeX dependency.
 
-**Generated PDF:** `output/Building_LLMs_from_Scratch.pdf`
+**Target Playlist:** [Building LLMs from Scratch – Dr. Raj Dander (VIUA)](https://www.youtube.com/watch?v=Xpr8D6LeAtw&list=PLPTV0NXA_ZSgsLAr8YCgCwhPIJNNtexWu)  
+**Generated Output:** `output/Building_LLMs_from_Scratch.pdf`
+
+---
+
+## 📄 Technical Report
+
+A comprehensive technical report documenting the full architecture, design decisions, algorithms, LLM integration strategy, prompt engineering, limitations, and future improvements is included in this repository:
+
+| File | Description |
+|------|-------------|
+| [`Book_llm_pipeline_report.pdf`](./Book_llm_pipeline_report.pdf) | 📘 Full technical report (PDF) — **read this for a deep dive into how the pipeline works** |
+| [`Book_llm_pipeline_report.tex`](./Book_llm_pipeline_report.tex) | LaTeX source of the report |
+
+> **We strongly recommend going through the report** to understand the system architecture, prompt engineering methodology, chunking strategy, LLM backend comparison, and known limitations before running or extending the pipeline.
 
 ---
 
 ## Pipeline Architecture
 
+The system is organized as a **linear four-stage pipeline**. Stages communicate exclusively through the filesystem, making each stage independently runnable and resumable.
+
 ```
 YouTube Playlist
-      |
-      v
-Stage 1: Fetch Transcripts       (youtube-transcript-api + yt-dlp)
-      |
-      v
-Stage 2: Write Chapters          (DeepSeek API - prose expansion per chunk)
-      |
-      v
-Stage 3: Assemble Manuscript     (foreword + TOC + chapters + glossary)
-      |
-      v
-Stage 4: Render PDF              (ReportLab - no LaTeX dependency)
-      |
-      v
-output/Building_LLMs_from_Scratch.pdf
+      │
+      ▼
+Stage 1: Fetch Transcripts       ──► cache/transcripts/*.json
+      │                               (youtube-transcript-api + yt-dlp)
+      ▼
+Stage 2: Write Chapters (LLM)    ──► cache/chapters/*.md
+      │                               (DeepSeek / Groq / Anthropic / Gemini)
+      ▼
+Stage 3: Assemble Manuscript     ──► output/manuscript.md
+      │                               (foreword + TOC + chapters + glossary)
+      ▼
+Stage 4: Render PDF (ReportLab)  ──► output/Building_LLMs_from_Scratch.pdf
 ```
 
-Each stage writes to disk. The pipeline is fully resumable from any stage.
-All LLM outputs are cached to `cache/` so re-runs do not repeat API calls.
+All LLM outputs are **file-cached by `video_id`** — re-runs skip already-processed videos. Any stage can be restarted independently.
+
+---
+
+## Repository Structure
+
+```
+llm-book-pipeline/
+├── build_book.py                  # Entrypoint: orchestrates all 4 stages
+├── config.yaml                    # All tunable parameters (model, chunk size, etc.)
+├── requirements.txt               # Python dependencies
+├── patch.py                       # Gemini API migration patch (v0.x)
+├── patch2.py                      # Gemini v2 API migration patch (v1.x)
+├── Book_llm_pipeline_report.pdf   # 📘 Technical report (READ THIS)
+├── Book_llm_pipeline_report.tex   # LaTeX source of the report
+├── pipeline/
+│   ├── 01_fetch_transcripts.py    # Stage 1: fetch & clean YouTube transcripts
+│   ├── 02_write_chapters.py       # Stage 2: LLM-powered prose expansion
+│   ├── 03_assemble_manuscript.py  # Stage 3: foreword, TOC, glossary assembly
+│   └── 04_render_pdf.py           # Stage 4: ReportLab PDF rendering
+├── cache/
+│   ├── video_index.json           # Playlist metadata
+│   ├── transcripts/               # <video_id>.json per video
+│   └── chapters/                  # <video_id>.md per video
+├── output/
+│   ├── manuscript.md              # Full assembled manuscript
+│   └── Building_LLMs_from_Scratch.pdf
+└── free_api_version/              # Groq (free-tier) variant — identical structure
+    ├── build_book.py
+    ├── config.yaml
+    └── pipeline/
+```
+
+---
+
+## Key Configuration (`config.yaml`)
+
+| Parameter | Default | Purpose |
+|-----------|---------|---------|
+| `llm.model` | `deepseek-chat` | LLM model identifier |
+| `llm.chunk_size` | `3000` | Characters per transcript chunk |
+| `llm.chunk_overlap` | `200` | Overlap between consecutive chunks |
+| `llm.max_tokens` | `4096` | Max tokens in LLM response |
+| `pipeline.force_refetch` | `false` | Override transcript cache |
+| `pipeline.force_rewrite` | `false` | Override chapter cache |
+| `pipeline.max_videos` | `null` | Limit videos (for testing) |
+
+---
+
+## Supported LLM Backends
+
+| Backend | Model | Cost | Interface |
+|---------|-------|------|-----------|
+| **DeepSeek** | `deepseek-chat` | ~$0.10–0.20 (full 43 videos) | OpenAI-compatible |
+| **Anthropic** | `claude-sonnet-4-*` | Higher | Native SDK |
+| **Groq** | `llama-3.3-70b-versatile` | Free (rate-limited) | OpenAI-compatible |
+| **Google Gemini** | `gemini-2.0-flash` | Low | Google GenAI SDK |
+
+All four backends are supported via runtime config — no code changes needed.
 
 ---
 
@@ -52,131 +119,103 @@ pip install -r requirements.txt
 
 **3. Set your API key**
 
-The pipeline uses DeepSeek by default (cheapest, OpenAI-compatible).
-Get a key at https://platform.deepseek.com
-
 ```bash
-# Linux / Mac
-export DEEPSEEK_API_KEY=sk-your-key-here
+# DeepSeek (default, cheapest — recommended)
+export DEEPSEEK_API_KEY=sk-your-key-here          # Linux/Mac
+$env:DEEPSEEK_API_KEY="sk-your-key-here"          # Windows PowerShell
 
-# Windows PowerShell
-$env:DEEPSEEK_API_KEY="sk-your-key-here"
+# OR Anthropic Claude
+export ANTHROPIC_API_KEY=sk-ant-your-key-here
 ```
-
-To use Anthropic Claude instead, update `config.yaml` model to
-`claude-sonnet-4-20250514` and set `ANTHROPIC_API_KEY`.
-
-### 🌟 Free API Version (Groq Llama 3)
-If you don't have paid API keys (or just want a 1-click end-to-end test), a fully functional pipeline is provided out-of-the-box in the `free_api_version` directory.
-
-#### Method A: 1-Click Zero-Configuration (Preset Key)
-This version allows you to run the pipeline exactly as submitted without signing up for any services:
-**Step 1:** Enter the free version directory
-```bash
-cd free_api_version
-```
-**Step 2:** Start the pipeline entirely for free
-```bash
-python build_book.py
-```
-
-#### Method B: Use Your Own Free Key
-If you prefer to securely use your own free Groq API key:
-**Step 1:** Create an account at [Groq Console](https://console.groq.com/) and generate a free API key.
-**Step 2:** Enter the directory and set your API key
-```bash
-cd free_api_version
-
-# Windows PowerShell:
-$env:GROQ_API_KEY="gsk_your_groq_key"
-
-# Linux / Mac:
-export GROQ_API_KEY="gsk_your_groq_key"
-```
-**Step 3:** Run the pipeline
-
-To safely test the pipeline blazing-fast (processing exactly 5 videos instead of the entire playlist):
-```bash
-python build_book.py --max-videos 5
-```
-
-If you want to compile the absolutely massive, full out-of-the-box 43-video playbook, simply run:
-```bash
-python build_book.py
-```
-
-> [!WARNING]
-> Do NOT run the completely massive 43-video playlist using the Free API Version unless you have an exponential amount of time. Because the free Groq Limits heavily throttle execution, processing all 43 video chapters using exclusively free tokens will iteratively pause/resume and ultimately require leaving your computer running for dozens of hours in the background gracefully. If you want to review the execution seamlessly, absolutely use the `python build_book.py --max-videos 5` command!
-
-> [!NOTE]
-> **Dealing with Free API Limits:** Because the pipeline expands a huge playlist, the free Groq API will inevitably hit its strict free tier limits (`Error 429: rate_limit_exceeded`) midway through the build. This is totally normal! The pipeline actually features an advanced auto-retry mechanism configured specifically for this scenario. Whenever a limit is hit, the script automatically pauses itself (sometimes for ~1 hour depending on your daily tokens), perfectly calculates the required wait time, and flawlessly resumes building exactly where it left off the second your limits natively renew. Absolutely no manual intervention is required! *(Note: If you run the pipeline using a paid API key like Anthropic or DeepSeek, you will not hit these limits and the full execution will stream through completely uninterrupted!)*
 
 ---
 
 ## Run
 
-**Test run (5 videos fast execution):**
+**Quick test (5 videos):**
 ```bash
 python build_book.py --max-videos 5
 ```
 
-**Full playlist execution (43+ videos):**
+**Full 43-video playlist:**
 ```bash
 python build_book.py
 ```
 
 **Resume from a specific stage:**
 ```bash
-python build_book.py --from 2
-python build_book.py --only 4
-python build_book.py --dry-run
+python build_book.py --from 2     # resume from Stage 2
+python build_book.py --only 4     # run only Stage 4 (PDF render)
+python build_book.py --dry-run    # show plan without executing
 ```
 
 ---
 
-## Repo Structure
+## 🌟 Free API Version (Groq — No API Key Required)
 
+A fully functional free variant is provided in `free_api_version/` using the Groq API (Llama 3.3-70B).
+
+### Method A: Zero-Configuration (Preset Key)
+```bash
+cd free_api_version
+python build_book.py
 ```
-repo/
-├── build_book.py              # Single entrypoint - runs all stages
-├── config.yaml                # Playlist URL, model params, output paths
-├── requirements.txt           # All dependencies
-├── README.md
-├── free_api_version/          # Alternative pre-configured to use free Groq API
-├── pipeline/
-│   ├── 01_fetch_transcripts.py   # Fetch + clean YouTube transcripts
-│   ├── 02_write_chapters.py      # Expand transcripts into book prose
-│   ├── 03_assemble_manuscript.py # Foreword, TOC, glossary assembly
-│   └── 04_render_pdf.py          # ReportLab PDF rendering
-├── cache/
-│   ├── video_index.json          # Playlist metadata
-│   ├── transcripts/              # Per-video cleaned transcripts
-│   └── chapters/                 # Per-video generated chapters
-└── output/
-    ├── manuscript.md             # Full assembled manuscript
-    └── Building_LLMs_from_Scratch.pdf
+
+### Method B: Use Your Own Free Groq Key
+1. Create a free account at [console.groq.com](https://console.groq.com/)
+2. Set your key:
+```bash
+$env:GROQ_API_KEY="gsk_your_groq_key"   # Windows
+export GROQ_API_KEY="gsk_your_groq_key" # Linux/Mac
 ```
+3. Run:
+```bash
+python build_book.py --max-videos 5   # fast 5-video test
+python build_book.py                  # full playlist
+```
+
+> [!WARNING]
+> Running the full 43-video playlist on the free Groq tier will take many hours due to strict rate limits. The pipeline auto-pauses and resumes when limits are hit (no manual intervention needed), but expect it to run overnight. Use `--max-videos 5` for a fast end-to-end demo.
+
+> [!NOTE]
+> **Auto Rate-Limit Handling:** When the Groq free tier returns `Error 429`, the pipeline parses the exact cooldown duration from the error message and sleeps precisely that long before retrying — fully unattended.
 
 ---
 
-## Design Decisions
+## Design Highlights
 
-**No hallucinations:** Claude/DeepSeek is instructed to only use content
-from the provided transcript chunk. No outside knowledge injection.
+| Principle | Implementation |
+|-----------|----------------|
+| **No hallucinations** | LLM strictly instructed to use only the provided transcript chunk |
+| **Reproducible** | All LLM outputs cached to disk; re-runs produce identical results |
+| **No LaTeX** | PDF rendered via ReportLab Platypus in pure Python |
+| **Idempotent** | Each stage skips already-completed work; override with `force_refetch`/`force_rewrite` |
+| **Multi-backend** | DeepSeek, Anthropic, Groq, and Gemini supported via one config change |
+| **Cost-efficient** | ~$0.10–$0.20 USD for the full 43-video run on DeepSeek |
 
-**Reproducible:** All LLM outputs cached as JSON. Re-running the pipeline
-with the same transcripts produces the same book.
+---
 
-**No LaTeX dependency:** PDF rendered directly via ReportLab in pure Python.
-Works on any OS without a TeX installation.
+## Output
 
-**Idempotent stages:** Each stage checks for existing output before running.
-Set `force_refetch: true` or `force_rewrite: true` in `config.yaml` to override.
+The pipeline produces:
+- **43 transcript JSON files** in `cache/transcripts/` (~120,000 words of cleaned spoken content)  
+- **Chapter Markdown files** in `cache/chapters/` (one per video)
+- **`output/manuscript.md`** — full assembled manuscript
+- **`output/Building_LLMs_from_Scratch.pdf`** — publication-quality PDF with cover page, TOC, foreword, 43 chapters, and a glossary (~200–350 pages, ~150,000–250,000 words)
 
 ---
 
 ## Requirements
 
 - Python 3.10+
-- DeepSeek API key (or Anthropic API key)
-- Internet connection for Stage 1
+- DeepSeek / Anthropic / Groq / Gemini API key (Groq is free)
+- Internet connection for Stage 1 (transcript fetching)
+
+---
+
+## Author
+
+**Vaibhav Mahore**  
+Indian Institute of Science, Bangalore — B.Tech, Mathematics and Computing
+
+📘 *For full technical details, algorithms, prompt engineering methodology, and  architecture analysis — please read the [Technical Report](./Book_llm_pipeline_report.pdf).*
