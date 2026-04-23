@@ -4,7 +4,7 @@
 
 Converts a YouTube playlist of educational lectures into a publication-quality PDF book - fetching transcripts, expanding them into polished prose with an LLM, assembling a full manuscript, and rendering a typeset PDF - all in Python, with no LaTeX dependency.
 
-**Target Playlist:** [Building LLMs from Scratch – Dr. Raj Dander (VIUA)](https://www.youtube.com/watch?v=Xpr8D6LeAtw&list=PLPTV0NXA_ZSgsLAr8YCgCwhPIJNNtexWu)  
+**Target Playlist:** [Building LLMs from Scratch - Dr. Raj Dander (VIUA)](https://www.youtube.com/watch?v=Xpr8D6LeAtw&list=PLPTV0NXA_ZSgsLAr8YCgCwhPIJNNtexWu)  
 **Generated Output:** `output/Building_LLMs_from_Scratch.pdf`
 
 ---
@@ -100,7 +100,7 @@ llm-book-pipeline/
 | **Groq** | `llama-3.3-70b-versatile` | Free (rate-limited) | OpenAI-compatible |
 | **Google Gemini** | `gemini-2.0-flash` | Low | Google GenAI SDK |
 
-All four backends are supported via runtime config — no code changes needed.
+All four backends are supported via runtime config - no code changes needed.
 
 ---
 
@@ -200,8 +200,8 @@ python build_book.py                  # full playlist
 The pipeline produces:
 - **43 transcript JSON files** in `cache/transcripts/` (~120,000 words of cleaned spoken content)  
 - **Chapter Markdown files** in `cache/chapters/` (one per video)
-- **`output/manuscript.md`** — full assembled manuscript
-- **`output/Building_LLMs_from_Scratch.pdf`** — publication-quality PDF with cover page, TOC, foreword, 43 chapters, and a glossary (~200–350 pages, ~150,000–250,000 words)
+- **`output/manuscript.md`** - full assembled manuscript
+- **`output/Building_LLMs_from_Scratch.pdf`** - publication-quality PDF with cover page, TOC, foreword, 43 chapters, and a glossary (~200–350 pages, ~150,000–250,000 words)
 
 ---
 
